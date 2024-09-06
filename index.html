@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Board Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Job Board Platform</h1>
+
+    <h2>Post a Job</h2>
+    <form id="job-form">
+        <input type="text" name="title" placeholder="Job Title" required>
+        <textarea name="description" placeholder="Job Description" required></textarea>
+        <input type="text" name="company" placeholder="Company Name" required>
+        <input type="text" name="location" placeholder="Location" required>
+        <button type="submit">Post Job</button>
+    </form>
+
+    <h2>Available Jobs</h2>
+    <div id="job-list"></div>
+
+    <h2>Apply for a Job</h2>
+    <form id="application-form">
+        <input type="text" name="jobId" placeholder="Job ID" required>
+        <input type="text" name="candidateName" placeholder="Your Name" required>
+        <input type="file" name="resume" required>
+        <button type="submit">Apply</button>
+    </form>
+
+    <script>
+        // Function to load jobs
+        async function loadJobs() {
+            const response = await fetch('/jobs');
+            const jobs = await response.json();
+            const jobList = document.getElementById('job-list');
+
+            jobs.forEach(job => {
+                const jobDiv = document.createElement('div');
+                jobDiv.innerHTML = `
+                    <h3>${job.title}</h3>
+                    <p>${job.description}</p>
+                    <p><strong>Company:</strong> ${job.company}</p>
+                    <p><strong>Location:</strong> ${job.location}</p>
+                `;
+                jobList.appendChild(jobDiv);
+            });
+        }
+
+        document.getElementById('job-form').onsubmit = async (event) => {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+
+            await fetch('/job', {
+                method: 'POST',
+                body: formData,
+            });
+
+            alert('Job posted successfully!');
+            loadJobs(); // Refresh job list
+        };
+
+        document.getElementById('application-form').onsubmit = async (event) => {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+
+            await fetch('/apply', {
+                method: 'POST',
+                body: formData,
+            });
+
+            alert('Application submitted successfully!');
+        };
+
+        loadJobs();
+    </script>
+</body>
+</html>
